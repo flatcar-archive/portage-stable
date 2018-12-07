@@ -1,11 +1,11 @@
 DEFINED_PHASES=compile configure install postinst postrm prepare setup test unpack
-DEPEND=sys-devel/autoconf >=dev-vcs/git-1.8.2.1
+DEPEND=sys-devel/autoconf >=dev-vcs/git-1.8.2.1[curl]
 DESCRIPTION=vim and gvim shared files
 EAPI=6
-HOMEPAGE=http://www.vim.org/ https://github.com/vim/vim
+HOMEPAGE=https://vim.sourceforge.io/ https://github.com/vim/vim
 IUSE=nls acl minimal
 LICENSE=vim
 PDEPEND=!minimal? ( app-vim/gentoo-syntax )
 SLOT=0
-_eclasses_=bash-completion-r1	8e447753aaf658afa609fbf961d80ab7	epatch	8233751dc5105a6ae8fcd86ce2bb0247	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	227b041a120d309fdefbebb3b8c1dfa9	flag-o-matic	2274fcc1e7ef6affaff5bcd636275417	git-r3	52a888802d25387c2c74cb845d1219bc	ltprune	2770eed66a9b8ef944714cd0e968182e	multilib	97f470f374f2e94ccab04a2fb21d811e	prefix	7b6fb2fc216b101b5d97d171925a847c	toolchain-funcs	185a06792159ca143528e7010368e8af	versionator	c80ccf29e90adea7c5cae94b42eb76d0	vim-doc	af2c81a1feeb0a99e91bee3e20769edb
-_md5_=58efc16dca262c27904a1f374d744a92
+_eclasses_=bash-completion-r1	47a7402d95930413ce25ba8d857339bb	desktop	b1d22ac8bdd4679ab79c71aca235009d	epatch	a1bf4756dba418a7238f3be0cb010c54	estack	43ddf5aaffa7a8d0482df54d25a66a1f	eutils	6e6c2737b59a4b982de6fb3ecefd87f8	flag-o-matic	55aaa148741116aa54ad0d80e361818e	git-r3	0d4635eeb5a96cd5315597a47eba25c9	ltprune	08f9e1d9ee0af8f5d9a7854efbcd8c0e	multilib	b2f01ad412baf81650c23fcf0975fa33	prefix	e51c7882b7b721e54e684f7eb143cbfe	preserve-libs	ef207dc62baddfddfd39a164d9797648	toolchain-funcs	f164325a2cdb5b3ea39311d483988861	vcs-clean	2a0f74a496fa2b1552c4f3398258b7bf	versionator	2352c3fc97241f6a02042773c8287748	vim-doc	af2c81a1feeb0a99e91bee3e20769edb
+_md5_=270757509200029d6bc809620769bf83

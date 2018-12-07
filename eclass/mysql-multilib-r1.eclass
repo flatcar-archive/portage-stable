@@ -8,6 +8,7 @@
 #	- Robin H. Johnson <robbat2@gentoo.org>
 #	- Jorge Manuel B. S. Vicetto <jmbsvicetto@gentoo.org>
 #	- Brian Evans <grknight@gentoo.org>
+# @SUPPORTED_EAPIS: 5 6
 # @BLURB: This eclass provides common functions for mysql ebuilds
 # @DESCRIPTION:
 # The mysql-multilib-r1.eclass is the base eclass to build the mysql and
@@ -20,20 +21,24 @@
 MYSQL_EXTRAS=""
 
 # @ECLASS-VARIABLE: MYSQL_EXTRAS_VER
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # The version of the MYSQL_EXTRAS repo to use to build mysql
 # Use "none" to disable it's use
 [[ ${MY_EXTRAS_VER} == "live" ]] && MYSQL_EXTRAS="git-r3"
 
 # @ECLASS-VARIABLE: MYSQL_CMAKE_NATIVE_DEFINES
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # An array of extra CMake arguments for native multilib builds
 
 # @ECLASS-VARIABLE: MYSQL_CMAKE_NONNATIVE_DEFINES
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # An array of extra CMake arguments for non-native multilib builds
 
 # @ECLASS-VARIABLE: MYSQL_CMAKE_EXTRA_DEFINES
+# @DEFAULT_UNSET
 # @DESCRIPTION:
 # An array of CMake arguments added to native and non-native
 
@@ -145,7 +150,7 @@ if [[ ${MY_EXTRAS_VER} != "live" && ${MY_EXTRAS_VER} != "none" ]]; then
 fi
 
 DESCRIPTION="A fast, multi-threaded, multi-user SQL database server"
-HOMEPAGE="http://www.mysql.com/"
+HOMEPAGE="https://www.mysql.com/"
 LICENSE="GPL-2"
 SLOT="0/${SUBSLOT:-0}"
 
@@ -188,7 +193,6 @@ DEPEND="
 # prefix: first need to implement something for #196294
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-mysql )
-	abi_x86_32? ( !app-emulation/emul-linux-x86-db[-abi_x86_32(-)] )
 "
 
 # Having different flavours at the same time is not a good idea
@@ -887,7 +891,7 @@ mysql-multilib-r1_pkg_config() {
 	${EROOT}/usr/sbin/mysqld --verbose --help >"${helpfile}" 2>/dev/null
 	for opt in grant-tables host-cache name-resolve networking slave-start \
 		federated ssl log-bin relay-log slow-query-log external-locking \
-		ndbcluster log-slave-updates \
+		ndbcluster log-slave-updates wsrep-on \
 		; do
 		optexp="--(skip-)?${opt}" optfull="--loose-skip-${opt}"
 		egrep -sq -- "${optexp}" "${helpfile}" && options="${options} ${optfull}"
