@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -9,11 +9,12 @@ inherit autotools ltprune python-r1 toolchain-funcs multilib-minimal
 
 DESCRIPTION="XSLT libraries and tools"
 HOMEPAGE="http://www.xmlsoft.org/"
-SRC_URI="ftp://xmlsoft.org/${PN}/${P}.tar.gz"
+SRC_URI="ftp://xmlsoft.org/${PN}/${P}.tar.gz
+		https://gitlab.gnome.org/GNOME/libxslt/commit/e03553605b45c88f0b4b2980adfbbb8f6fca2fd6.patch -> libxslt-1.1.33-CVE-2019-11068.patch"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~arm-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
 IUSE="crypt debug examples python static-libs elibc_Darwin"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
@@ -40,22 +41,11 @@ src_prepare() {
 
 	DOCS=( AUTHORS ChangeLog FEATURES NEWS README TODO )
 
-	# https://bugzilla.gnome.org/show_bug.cgi?id=684621
-	eapply "${FILESDIR}"/${PN}.m4-${PN}-1.1.26.patch
-
 	# Simplify python setup
 	# https://bugzilla.gnome.org/show_bug.cgi?id=758095
-	eapply "${FILESDIR}"/${PN}-1.1.30-simplify-python.patch
+	eapply "${FILESDIR}"/1.1.32-simplify-python.patch
 	eapply "${FILESDIR}"/${PN}-1.1.28-disable-static-modules.patch
-
-	# Fix xslt-config
-	# https://bugs.gentoo.org/630784
-	eapply "${FILESDIR}"/1.1.30-unbreak-xslt-config.patch
-
-	# Fix build and headers with glibc-2.26, bug 632214, breaks Darwin
-	use elibc_Darwin || eapply "${FILESDIR}"/${PN}-1.1.30-glibc226.patch
-
-	mv configure.{in,ac} || die
+	eapply "${DISTDIR}"/libxslt-1.1.33-CVE-2019-11068.patch
 
 	eautoreconf
 	# If eautoreconf'd with new autoconf, then epunt_cxx is not necessary
@@ -117,9 +107,8 @@ multilib_src_install() {
 multilib_src_install_all() {
 	einstalldocs
 
-	if ! use examples; then
-		rm -rf "${ED}"/usr/share/doc/${PF}/examples
-		rm -rf "${ED}"/usr/share/doc/${PF}/python/examples
+	if ! use examples && use python; then
+		rm -r "${ED}"/usr/share/doc/${PF}/python/examples || die
 	fi
 
 	prune_libtool_files --modules
