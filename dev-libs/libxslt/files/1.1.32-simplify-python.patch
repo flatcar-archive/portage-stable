@@ -7,7 +7,7 @@ AM_PATH_PYTHON does most of the job without using pkg-config as expected
 from the rest of the autoconf script.
 ---
  Makefile.am        |  14 +++++--
- configure.in       | 119 ++++++++++++++---------------------------------------
+ configure.ac       | 119 ++++++++++++++---------------------------------------
  python/Makefile.am |  28 ++++---------
  3 files changed, 49 insertions(+), 112 deletions(-)
 
@@ -43,10 +43,10 @@ index ff10f574..65decb3c 100644
  
  valgrind:
  	@echo '## Running the regression tests under Valgrind'
-diff --git a/configure.in b/configure.in
+diff --git a/configure.ac b/configure.ac
 index d6aa3664..0a538944 100644
---- a/configure.in
-+++ b/configure.in
+--- a/configure.ac
++++ b/configure.ac
 @@ -293,90 +293,37 @@ dnl
  dnl check for python
  dnl
