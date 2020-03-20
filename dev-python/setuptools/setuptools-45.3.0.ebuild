@@ -1,37 +1,31 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
-PYTHON_COMPAT=( python2_7 python3_{4,5,6} pypy{,3} )
+EAPI=7
+DISTUTILS_USE_SETUPTOOLS=no
+PYTHON_COMPAT=( python3_{6,7,8} pypy3 )
 PYTHON_REQ_USE="xml(+)"
 
 inherit distutils-r1
 
-if [[ ${PV} == "9999" ]]; then
-	EGIT_REPO_URI="https://github.com/pypa/setuptools.git"
-	inherit git-r3
-else
-	SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.zip"
-	KEYWORDS="~amd64 ~ia64 ~ppc ~ppc64 ~x86"
-fi
-
 DESCRIPTION="Collection of extensions to Distutils"
 HOMEPAGE="https://github.com/pypa/setuptools https://pypi.org/project/setuptools/"
+SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.zip"
 
 LICENSE="MIT"
 SLOT="0"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="test"
+RESTRICT="!test? ( test )"
 
-RDEPEND="
-"
-DEPEND="${RDEPEND}
+BDEPEND="
 	app-arch/unzip
 	test? (
+		dev-python/mock[${PYTHON_USEDEP}]
 		dev-python/pip[${PYTHON_USEDEP}]
-		>=dev-python/pytest-2.8[${PYTHON_USEDEP}]
+		>=dev-python/pytest-3.7.0[${PYTHON_USEDEP}]
 		dev-python/pytest-fixture-config[${PYTHON_USEDEP}]
 		dev-python/pytest-virtualenv[${PYTHON_USEDEP}]
-		>=dev-python/backports-unittest-mock-1.2[${PYTHON_USEDEP}]
 		dev-python/wheel[${PYTHON_USEDEP}]
 	)
 "
@@ -44,16 +38,14 @@ DISTUTILS_IN_SOURCE_BUILD=1
 DOCS=( {CHANGES,README}.rst docs/{easy_install.txt,pkg_resources.txt,setuptools.txt} )
 
 python_prepare_all() {
-	if [[ ${PV} == "9999" ]]; then
-		python_setup
-		${EPYTHON} bootstrap.py || die
-	fi
-
 	# disable tests requiring a network connection
 	rm setuptools/tests/test_packageindex.py || die
 
 	# don't run integration tests
 	rm setuptools/tests/test_integration.py || die
+
+	# avoid pointless dep on flake8
+	sed -i -e 's:--flake8::' pytest.ini || die
 
 	distutils-r1_python_prepare_all
 }
@@ -61,7 +53,7 @@ python_prepare_all() {
 python_test() {
 	# test_easy_install raises a SandboxViolation due to ${HOME}/.pydistutils.cfg
 	# It tries to sandbox the test in a tempdir
-	HOME="${PWD}" py.test --verbose ${PN} || die "Tests failed under ${EPYTHON}"
+	HOME="${PWD}" pytest -vv ${PN} || die "Tests failed under ${EPYTHON}"
 }
 
 python_install() {
