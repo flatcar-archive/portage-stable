@@ -1,11 +1,11 @@
 # Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=6
+EAPI=7
 
 PYTHON_COMPAT=( python2_7 python3_{6,7} pypy3 )
 
-inherit distutils-r1 prefix readme.gentoo-r1 versionator
+inherit distutils-r1 prefix readme.gentoo-r1
 
 DESCRIPTION="Python package for providing Mozilla's CA Bundle"
 HOMEPAGE="http://certifi.io/ https://pypi.org/project/certifi"
