@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-# Copyright 1999-2019 Gentoo Authors
-=======
-<<<<<<< HEAD:dev-libs/libgcrypt/libgcrypt-1.8.4.ebuild
-# Copyright 1999-2019 Gentoo Authors
-=======
 # Copyright 1999-2020 Gentoo Authors
->>>>>>> 44508ee7a... bump(dev-libs/libgcrypt): sync with upstream:dev-libs/libgcrypt/libgcrypt-1.8.5.ebuild
->>>>>>> 44508ee7a... bump(dev-libs/libgcrypt): sync with upstream
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -19,15 +11,7 @@ SRC_URI="mirror://gnupg/${PN}/${P}.tar.bz2"
 
 LICENSE="LGPL-2.1 MIT"
 SLOT="0/20" # subslot = soname major version
-<<<<<<< HEAD
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-=======
-<<<<<<< HEAD:dev-libs/libgcrypt/libgcrypt-1.8.4.ebuild
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-=======
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~ppc-aix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
->>>>>>> 44508ee7a... bump(dev-libs/libgcrypt): sync with upstream:dev-libs/libgcrypt/libgcrypt-1.8.5.ebuild
->>>>>>> 44508ee7a... bump(dev-libs/libgcrypt): sync with upstream
 IUSE="doc o-flag-munging static-libs"
 
 RDEPEND=">=dev-libs/libgpg-error-1.25[${MULTILIB_USEDEP}]"
@@ -56,10 +40,6 @@ multilib_src_configure() {
 		append-cflags -Wa,--divide
 	fi
 	local myeconfargs=(
-<<<<<<< HEAD
-		--disable-dependency-tracking
-=======
->>>>>>> 44508ee7a... bump(dev-libs/libgcrypt): sync with upstream
 		--enable-noexecstack
 		$(use_enable o-flag-munging O-flag-munging)
 		$(use_enable static-libs static)
