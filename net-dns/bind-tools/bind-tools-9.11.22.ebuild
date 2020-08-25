@@ -123,7 +123,7 @@ src_install() {
 	fi
 
 	cd "${S}"/bin/dnssec
-	for tool in dsfromkey importkey keyfromlabel keygen \\
+	for tool in dsfromkey importkey keyfromlabel keygen \
 	  revoke settime signzone verify; do
 		dobin dnssec-"${tool}"
 		doman dnssec-"${tool}".8
