@@ -261,7 +261,9 @@ case ${EAPI:-0} in
 	5*|6) DEPEND+=" ${BDEPEND}" ;;
 esac
 
-PDEPEND=">=sys-devel/gcc-config-2.3"
+# Flatcar: allow gcc-config-1.9
+# PDEPEND=">=sys-devel/gcc-config-2.3"
+PDEPEND=">=sys-devel/gcc-config-1.9"
 
 #---->> S + SRC_URI essentials <<----
 
