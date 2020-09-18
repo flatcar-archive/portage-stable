@@ -12,7 +12,6 @@ dev-libs/libusb static-libs
 # 'static-libs' support on sys-apps/systemd is not provided
 virtual/libgudev static-libs
 virtual/libudev static-libs
-sys-fs/cryptsetup static static-libs
 sys-fs/lvm2 static static-libs
 sys-fs/dmraid static
 dev-libs/libgudev static-libs
