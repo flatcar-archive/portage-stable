@@ -11,7 +11,7 @@ LICENSE="GPL-3+"
 IUSE="default-gold doc +gold multitarget +nls +plugins static-libs test"
 REQUIRED_USE="default-gold? ( gold )"
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv s390 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
 # Variables that can be set here:
 # PATCH_VER          - the patchset version
