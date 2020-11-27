@@ -121,6 +121,7 @@ src_unpack() {
 	pushd "${S_K}" >/dev/null || die
 	eapply "${FILESDIR}/perf-5.4.7-propagate-cflags.patch"
 	eapply "${FILESDIR}/perf-5.4.20-binutil-libs-2.34.patch"
+	eapply "${FILESDIR}/perf-5.4-libtraceevent-Fix-build-with-binutils-2.35.patch"
 	popd || die
 }
 
