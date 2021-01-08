@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: bash-completion-r1.eclass
@@ -91,7 +91,7 @@ get_bashhelpersdir() {
 }
 
 # @FUNCTION: dobashcomp
-# @USAGE: file [...]
+# @USAGE: <file> [...]
 # @DESCRIPTION:
 # Install bash-completion files passed as args. Has EAPI-dependant failure
 # behavior (like doins).
@@ -106,7 +106,7 @@ dobashcomp() {
 }
 
 # @FUNCTION: newbashcomp
-# @USAGE: file newname
+# @USAGE: <file> <newname>
 # @DESCRIPTION:
 # Install bash-completion file under a new name. Has EAPI-dependant failure
 # behavior (like newins).

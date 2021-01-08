@@ -1,4 +1,4 @@
-# Copyright 2004-2018 Gentoo Authors
+# Copyright 2004-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: java-utils-2.eclass
@@ -27,6 +27,8 @@ export WANT_JAVA_CONFIG="2"
 
 # Prefix variables are only available for EAPI>=3
 has "${EAPI:-0}" 0 1 2 && ED="${D}" EPREFIX= EROOT="${ROOT}"
+
+has test ${JAVA_PKG_IUSE} && RESTRICT+=" !test? ( test )"
 
 # @VARIABLE: JAVA_PKG_E_DEPEND
 # @INTERNAL
@@ -264,7 +266,7 @@ java-pkg_addres() {
 }
 
 # @FUNCTION: java-pkg_rm_files
-# @USAGE: java-pkg_rm_files File1.java File2.java ...
+# @USAGE: <File1.java> [File2.java] ...
 # @DESCRIPTION:
 # Remove unneeded files in ${S}.
 #
@@ -1859,6 +1861,44 @@ ejunit4() {
 	ejunit_ "junit-4" "${@}"
 }
 
+# @FUNCTION: etestng
+# @USAGE: etestng_ [-cp $classpath] <test classes>
+# @INTERNAL
+# @DESCRIPTION:
+# Testng wrapper function. Makes it easier to run the tests.
+# Launches the tests using org.testng.TestNG.
+#
+# @CODE
+# $1 - -cp or -classpath
+# $2 - the classpath passed to it
+# $@ - test classes for testng to run.
+# @CODE
+etestng() {
+	debug-print-function ${FUNCNAME} $*
+
+	local runner=org.testng.TestNG
+	local cp=$(java-pkg_getjars --with-dependencies testng)
+	local tests
+
+	if [[ ${1} = -cp || ${1} = -classpath ]]; then
+		cp="${cp}:${2}"
+		shift 2
+	else
+		cp="${cp}:."
+	fi
+
+	for test in ${@}; do
+		tests+="${test},"
+	done
+
+	debug-print "java -cp \"${cp}\" -Djava.io.tmpdir=\"${T}\""\
+		"-Djava.awt.headless=true ${runner}"\
+		"-usedefaultlisteners false -testclass ${tests}"
+	java -cp "${cp}" -Djava.io.tmpdir=\"${T}\" -Djava.awt.headless=true\
+		${runner} -usedefaultlisteners false -testclass ${tests}\
+		|| die "Running TestNG failed."
+}
+
 # @FUNCTION: java-utils-2_src_prepare
 # @DESCRIPTION:
 # src_prepare Searches for bundled jars
@@ -2729,10 +2769,13 @@ java-pkg_jar-list() {
 java-pkg_verify-classes() {
 	#$(find ${D} -type f -name '*.jar' -o -name '*.class')
 
-	local version_verify="/usr/bin/class-version-verify.py"
+	local version_verify_1="${EPREFIX}/usr/$(get_libdir)/javatoolkit/bin/class-version-verify.py"
+	local version_verify_2="${EPREFIX}/usr/libexec/javatoolkit/class-version-verify.py"
 
-	if [[ ! -x "${version_verify}" ]]; then
-		version_verify="/usr/$(get_libdir)/javatoolkit/bin/class-version-verify.py"
+	if [[ -x "${version_verify_1}" ]]; then
+		local version_verify=${version_verify_1}
+	else
+		local version_verify=${version_verify_2}
 	fi
 
 	if [[ ! -x "${version_verify}" ]]; then

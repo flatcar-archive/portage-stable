@@ -1,4 +1,4 @@
-# Copyright 2019 Gentoo Authors
+# Copyright 2019-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: acct-user.eclass
@@ -115,7 +115,7 @@ readonly ACCT_USER_NAME
 # << Boilerplate ebuild variables >>
 : ${DESCRIPTION:="System user: ${ACCT_USER_NAME}"}
 : ${SLOT:=0}
-: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
+: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
 S=${WORKDIR}
 
 
@@ -143,8 +143,8 @@ acct-user_add_deps() {
 # << Helper functions >>
 
 # @FUNCTION: eislocked
-# @INTERNAL
 # @USAGE: <user>
+# @INTERNAL
 # @DESCRIPTION:
 # Check whether the specified user account is currently locked.
 # Returns 0 if it is locked, 1 if it is not, 2 if the platform
@@ -176,8 +176,8 @@ eislocked() {
 }
 
 # @FUNCTION: elockuser
-# @INTERNAL
 # @USAGE: <user>
+# @INTERNAL
 # @DESCRIPTION:
 # Lock the specified user account, using the available platform-specific
 # functions.  This should prevent any login to the account.
@@ -221,8 +221,8 @@ elockuser() {
 }
 
 # @FUNCTION: eunlockuser
-# @INTERNAL
 # @USAGE: <user>
+# @INTERNAL
 # @DESCRIPTION:
 # Unlock the specified user account, using the available platform-
 # specific functions.
@@ -312,7 +312,7 @@ acct-user_pkg_pretend() {
 # @FUNCTION: acct-user_src_install
 # @DESCRIPTION:
 # Installs a keep-file into the user's home directory to ensure it is
-# owned by the package.
+# owned by the package, and sysusers.d file.
 acct-user_src_install() {
 	debug-print-function ${FUNCNAME} "${@}"
 
@@ -321,6 +321,20 @@ acct-user_src_install() {
 		# created yet
 		keepdir "${ACCT_USER_HOME}"
 	fi
+
+	insinto /usr/lib/sysusers.d
+	newins - ${CATEGORY}-${ACCT_USER_NAME}.conf < <(
+		printf "u\t%q\t%q\t%q\t%q\t%q\n" \
+			"${ACCT_USER_NAME}" \
+			"${ACCT_USER_ID/#-*/-}:${ACCT_USER_GROUPS[0]}" \
+			"${DESCRIPTION//[:,=]/;}" \
+			"${ACCT_USER_HOME}" \
+			"${ACCT_USER_SHELL/#-*/-}"
+		if [[ ${#ACCT_USER_GROUPS[@]} -gt 1 ]]; then
+			printf "m\t${ACCT_USER_NAME}\t%q\n" \
+				"${ACCT_USER_GROUPS[@]:1}"
+		fi
+	)
 }
 
 # @FUNCTION: acct-user_pkg_preinst

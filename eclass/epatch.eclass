@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: epatch.eclass
@@ -6,6 +6,7 @@
 # base-system@gentoo.org
 # @SUPPORTED_EAPIS: 0 1 2 3 4 5 6
 # @BLURB: easy patch application functions
+# @DEPRECATED: eapply from EAPI 7
 # @DESCRIPTION:
 # An eclass providing epatch and epatch_user functions to easily apply
 # patches to ebuilds. Mostly superseded by eapply* in EAPI 6.
@@ -18,6 +19,8 @@ case ${EAPI:-0} in
 	*)
 		die "${ECLASS}: banned in EAPI=${EAPI}; use eapply* instead";;
 esac
+
+inherit estack
 
 # @VARIABLE: EPATCH_SOURCE
 # @DESCRIPTION:
@@ -209,14 +212,13 @@ epatch() {
 		# Let people filter things dynamically
 		if [[ -n ${EPATCH_EXCLUDE}${EPATCH_USER_EXCLUDE} ]] ; then
 			# let people use globs in the exclude
-			local prev_noglob=$(shopt -p -o noglob)
-			set -o noglob
+			eshopts_push -o noglob
 
 			local ex
 			for ex in ${EPATCH_EXCLUDE} ; do
 				if [[ ${patchname} == ${ex} ]] ; then
 					einfo "  Skipping ${patchname} due to EPATCH_EXCLUDE ..."
-					${prev_noglob}
+					eshopts_pop
 					continue 2
 				fi
 			done
@@ -224,12 +226,12 @@ epatch() {
 			for ex in ${EPATCH_USER_EXCLUDE} ; do
 				if [[ ${patchname} == ${ex} ]] ; then
 					einfo "  Skipping ${patchname} due to EPATCH_USER_EXCLUDE ..."
-					${prev_noglob}
+					eshopts_pop
 					continue 2
 				fi
 			done
 
-			${prev_noglob}
+			eshopts_pop
 		fi
 
 		if [[ ${SINGLE_PATCH} == "yes" ]] ; then

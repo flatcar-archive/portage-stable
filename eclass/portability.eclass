@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: portability.eclass
@@ -67,8 +67,8 @@ seq() {
 
 	# Screw it, do the output ourselves
 	while :; do
-		[[ $max < $min && $step > 0 ]] && break
-		[[ $min < $max && $step < 0 ]] && break
+		[[ $max -lt $min && $step -gt 0 ]] && break
+		[[ $min -lt $max && $step -gt 0 ]] && break
 		echo $min
 		: $(( min += step ))
 	done

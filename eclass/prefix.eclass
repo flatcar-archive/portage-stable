@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: prefix.eclass
@@ -111,7 +111,7 @@ hprefixify() {
 }
 
 # @FUNCTION: prefixify_ro
-# @USAGE: prefixify_ro <file>.
+# @USAGE: <file>
 # @DESCRIPTION:
 # prefixify a read-only file.
 # copies the files to ${T}, prefixies it, echos the new file.

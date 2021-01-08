@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: haskell-cabal.eclass
@@ -66,6 +66,14 @@ inherit eutils ghc-package multilib toolchain-funcs
 # Needs working 'diff'.
 : ${CABAL_DEBUG_LOOSENING:=}
 
+# @ECLASS-VARIABLE: CABAL_REPORT_OTHER_BROKEN_PACKAGES
+# @DESCRIPTION:
+# Show other broken packages if 'cabal configure' fails.
+# It should be normally enabled unless you know you are about
+# to try to compile a lot of broken packages. Default value: 'yes'
+# Set to anything else to disable.
+: ${CABAL_REPORT_OTHER_BROKEN_PACKAGES:=yes}
+
 HASKELL_CABAL_EXPF="pkg_setup src_compile src_test src_install pkg_postinst pkg_postrm"
 
 # 'dev-haskell/cabal' passes those options with ./configure-based
@@ -101,15 +109,6 @@ done
 
 if [[ -n "${CABAL_USE_HADDOCK}" ]]; then
 	IUSE="${IUSE} doc"
-	# don't require depend on itself to build docs.
-	# ebuild bootstraps docs from just built binary
-	#
-	# starting from ghc-7.10.2 we install haddock bundled with
-	# ghc to keep links to base and ghc library, otherwise
-	# newer haddock versions change index format and can't
-	# read index files for packages coming with ghc.
-	[[ ${CATEGORY}/${PN} = "dev-haskell/haddock" ]] || \
-		DEPEND="${DEPEND} doc? ( || ( dev-haskell/haddock >=dev-lang/ghc-7.10.2 ) )"
 fi
 
 if [[ -n "${CABAL_USE_HSCOLOUR}" ]]; then
@@ -129,6 +128,7 @@ fi
 
 if [[ -n "${CABAL_TEST_SUITE}" ]]; then
 	IUSE="${IUSE} test"
+	RESTRICT+=" !test? ( test )"
 fi
 
 # returns the version of cabal currently in use.
@@ -271,6 +271,8 @@ cabal-die-if-nonempty() {
 }
 
 cabal-show-brokens() {
+	[[ ${CABAL_REPORT_OTHER_BROKEN_PACKAGES} != yes ]] && return 0
+
 	elog "ghc-pkg check: 'checking for other broken packages:'"
 	# pretty-printer
 	$(ghc-getghcpkg) check 2>&1 \
@@ -283,6 +285,8 @@ cabal-show-brokens() {
 }
 
 cabal-show-old() {
+	[[ ${CABAL_REPORT_OTHER_BROKEN_PACKAGES} != yes ]] && return 0
+
 	cabal-die-if-nonempty 'outdated' \
 		$("${EPREFIX}"/usr/sbin/haskell-updater --quiet --upgrade --list-only)
 }
@@ -395,14 +399,14 @@ cabal-configure() {
 		--datasubdir=${P}/ghc-$(ghc-version) \
 		"${cabalconf[@]}" \
 		${CABAL_CONFIGURE_FLAGS} \
-		${CABAL_EXTRA_CONFIGURE_FLAGS} \
-		"$@"
+		"$@" \
+		${CABAL_EXTRA_CONFIGURE_FLAGS}
 	echo ./setup "$@"
 	./setup "$@" || cabal-show-brokens-and-die "setup configure failed"
 }
 
 cabal-build() {
-	set --  build ${CABAL_EXTRA_BUILD_FLAGS} "$@"
+	set --  build "$@" ${CABAL_EXTRA_BUILD_FLAGS}
 	echo ./setup "$@"
 	./setup "$@" \
 		|| die "setup build failed"
@@ -570,8 +574,8 @@ haskell-cabal_src_test() {
 		set -- test \
 			"${cabaltest[@]}" \
 			${CABAL_TEST_FLAGS} \
-			${CABAL_EXTRA_TEST_FLAGS} \
-			"$@"
+			"$@" \
+			${CABAL_EXTRA_TEST_FLAGS}
 		echo ./setup "$@"
 		./setup "$@" || die "cabal test failed"
 	fi

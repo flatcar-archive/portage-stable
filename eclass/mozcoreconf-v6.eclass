@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 #
 # @ECLASS: mozcoreconf-v6.eclass
@@ -51,8 +51,8 @@ mozconfig_use_enable() {
 	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
-# @FUNCTION mozconfig_use_with
-# @DESCRIPTION
+# @FUNCTION: mozconfig_use_with
+# @DESCRIPTION:
 # add a line to .mozconfig based on a USE-flag
 #
 # Example:
@@ -63,8 +63,8 @@ mozconfig_use_with() {
 	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
-# @FUNCTION mozconfig_use_extension
-# @DESCRIPTION
+# @FUNCTION: mozconfig_use_extension
+# @DESCRIPTION:
 # enable or disable an extension based on a USE-flag
 #
 # Example:
@@ -103,12 +103,6 @@ moz_pkgsetup() {
 	# false positives when toplevel configure passes downwards.
 	export QA_CONFIGURE_OPTIONS=".*"
 
-	if [[ $(gcc-major-version) -eq 3 ]]; then
-		ewarn "Unsupported compiler detected, DO NOT file bugs for"
-		ewarn "outdated compilers. Bugs opened with gcc-3 will be closed"
-		ewarn "invalid."
-	fi
-
 	python-any-r1_pkg_setup
 	# workaround to set python3 into PYTHON3 until mozilla doesn't need py2
 	if [[ "${PYTHON_COMPAT[@]}" != "${PYTHON_COMPAT[@]#python3*}" ]]; then
@@ -128,6 +122,7 @@ mozconfig_init() {
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
 	declare TB=$([[ ${PN} == thunderbird ]] && echo true || echo false)
 	declare TRB=$([[ ${PN} == torbrowser ]] && echo true || echo false)
+	declare WF=$([[ ${PN} == waterfox* ]] && echo true || echo false)
 
 	####################################
 	#
@@ -140,7 +135,7 @@ mozconfig_init() {
 		*xulrunner)
 			cp xulrunner/config/mozconfig .mozconfig \
 				|| die "cp xulrunner/config/mozconfig failed" ;;
-		*firefox)
+		*firefox|waterfox*)
 			cp browser/config/mozconfig .mozconfig \
 				|| die "cp browser/config/mozconfig failed" ;;
 		*torbrowser)
@@ -198,17 +193,21 @@ mozconfig_init() {
 	# Strip optimization so it does not end up in compile string
 	filter-flags '-O*'
 
+	if is-flagq '-g*' ; then
+		mozconfig_annotate 'elf-hack broken with -g* flags' --disable-elf-hack
+	fi
+
 	# Strip over-aggressive CFLAGS
 	use custom-cflags || strip-flags
 
 	# Additional ARCH support
 	case "${ARCH}" in
-	arm)
+	arm | ppc64)
 		# Reduce the memory requirements for linking
-		if use clang ; then
+		if [[ "${PN}" != seamonkey ]] && use clang ; then
 			# Nothing to do
 			:;
-		elif tc-ld-is-gold ; then
+		elif tc-ld-is-gold; then
 			append-ldflags -Wl,--no-keep-memory
 		else
 			append-ldflags -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
@@ -223,18 +222,6 @@ mozconfig_init() {
 	ia64)
 		# Historically we have needed to add this manually for 64-bit
 		append-flags -fPIC
-		;;
-	ppc64)
-		append-flags -fPIC -mminimal-toc
-		# Reduce the memory requirements for linking
-		if use clang ; then
-			# Nothing to do
-			:;
-		elif tc-ld-is-gold ; then
-			append-ldflags -Wl,--no-keep-memory
-		else
-			append-ldflags -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
-		fi
 		;;
 	esac
 

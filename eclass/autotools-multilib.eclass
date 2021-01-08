@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: autotools-multilib.eclass
@@ -8,6 +8,7 @@
 # Author: Michał Górny <mgorny@gentoo.org>
 # @SUPPORTED_EAPIS: 4 5
 # @BLURB: autotools-utils wrapper for multilib builds
+# @DEPRECATED: multilib-minimal
 # @DESCRIPTION:
 # The autotools-multilib.eclass provides a glue between
 # autotools-utils.eclass(5) and multilib-minimal.eclass(5), aiming
@@ -26,7 +27,7 @@ case ${EAPI:-0} in
 	*) die "EAPI=${EAPI} is not supported" ;;
 esac
 
-inherit autotools-utils eutils multilib-build multilib-minimal
+inherit autotools-utils eutils ltprune multilib-build multilib-minimal
 
 EXPORT_FUNCTIONS src_prepare src_configure src_compile src_test src_install
 

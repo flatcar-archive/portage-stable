@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: xorg-2.eclass
@@ -28,13 +28,16 @@ fi
 
 # If we're a font package, but not the font.alias one
 FONT_ECLASS=""
-if [[ ${PN} == font* \
-	&& ${CATEGORY} = media-fonts \
-	&& ${PN} != font-alias \
-	&& ${PN} != font-util ]]; then
-	# Activate font code in the rest of the eclass
-	FONT="yes"
-	FONT_ECLASS="font"
+if [[ ${CATEGORY} = media-fonts ]]; then
+	case ${PN} in
+	font-alias|font-util)
+		;;
+	font*)
+		# Activate font code in the rest of the eclass
+		FONT="yes"
+		FONT_ECLASS="font"
+		;;
+	esac
 fi
 
 # @ECLASS-VARIABLE: XORG_MULTILIB
@@ -116,7 +119,7 @@ fi
 
 # Set up autotools shared dependencies
 # Remember that all versions here MUST be stable
-XORG_EAUTORECONF_ARCHES="ppc-aix x86-winnt"
+XORG_EAUTORECONF_ARCHES="x86-winnt"
 EAUTORECONF_DEPEND+="
 	>=sys-devel/libtool-2.2.6a
 	sys-devel/m4"
@@ -137,10 +140,10 @@ unset EAUTORECONF_DEPEND
 
 if [[ ${FONT} == yes ]]; then
 	RDEPEND+=" media-fonts/encodings
-		|| ( >=x11-apps/mkfontscale-1.2.0 ( x11-apps/mkfontscale x11-apps/mkfontdir ) )"
+		>=x11-apps/mkfontscale-1.2.0"
 	PDEPEND+=" media-fonts/font-alias"
 	DEPEND+=" >=media-fonts/font-util-1.2.0
-		|| ( >=x11-apps/mkfontscale-1.2.0 ( x11-apps/mkfontscale x11-apps/mkfontdir ) )"
+		>=x11-apps/mkfontscale-1.2.0"
 
 	# @ECLASS-VARIABLE: FONT_DIR
 	# @DESCRIPTION:
@@ -186,11 +189,7 @@ if [[ ${XORG_STATIC} == yes \
 	IUSE+=" static-libs"
 fi
 
-if [[ ${XORG_MULTILIB} == yes ]]; then
-	DEPEND+=" virtual/pkgconfig[${MULTILIB_USEDEP}]"
-else
-	DEPEND+=" virtual/pkgconfig"
-fi
+DEPEND+=" virtual/pkgconfig"
 
 # @ECLASS-VARIABLE: XORG_DRI
 # @DESCRIPTION:

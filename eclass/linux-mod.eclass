@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: linux-mod.eclass
@@ -132,7 +132,7 @@
 # @DESCRIPTION:
 # It's a read-only variable. It contains the extension of the kernel modules.
 
-inherit eutils linux-info multilib
+inherit eutils linux-info multilib toolchain-funcs
 EXPORT_FUNCTIONS pkg_setup pkg_preinst pkg_postinst src_install src_compile pkg_postrm
 
 case ${MODULES_OPTIONAL_USE_IUSE_DEFAULT:-n} in
@@ -144,9 +144,16 @@ esac
 	0) die "EAPI=${EAPI} is not supported with MODULES_OPTIONAL_USE_IUSE_DEFAULT due to lack of IUSE defaults" ;;
 esac
 
-IUSE="kernel_linux ${MODULES_OPTIONAL_USE:+${_modules_optional_use_iuse_default}}${MODULES_OPTIONAL_USE}"
+IUSE="kernel_linux dist-kernel
+	${MODULES_OPTIONAL_USE:+${_modules_optional_use_iuse_default}}${MODULES_OPTIONAL_USE}"
 SLOT="0"
-RDEPEND="${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (} kernel_linux? ( virtual/modutils ) ${MODULES_OPTIONAL_USE:+)}"
+RDEPEND="
+	${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (}
+		kernel_linux? (
+			sys-apps/kmod[tools]
+			dist-kernel? ( virtual/dist-kernel:= )
+		)
+	${MODULES_OPTIONAL_USE:+)}"
 DEPEND="${RDEPEND}
     ${MODULES_OPTIONAL_USE}${MODULES_OPTIONAL_USE:+? (}
 	sys-apps/sed
@@ -208,13 +215,13 @@ use_m() {
 
 	# if the kernel version is greater than 2.6.6 then we should use
 	# M= instead of SUBDIRS=
-	[ ${KV_MAJOR} -eq 3 ] && return 0
+	[ ${KV_MAJOR} -ge 3 ] && return 0
 	[ ${KV_MAJOR} -eq 2 -a ${KV_MINOR} -gt 5 -a ${KV_PATCH} -gt 5 ] && \
 		return 0 || return 1
 }
 
 # @FUNCTION: convert_to_m
-# @USAGE: /path/to/the/file
+# @USAGE: </path/to/the/file>
 # @DESCRIPTION:
 # It converts a file (e.g. a makefile) to use M= instead of SUBDIRS=
 convert_to_m() {

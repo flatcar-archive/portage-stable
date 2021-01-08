@@ -1,4 +1,4 @@
-# Copyright 2019 Gentoo Authors
+# Copyright 2019-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: acct-group.eclass
@@ -75,12 +75,12 @@ readonly ACCT_GROUP_NAME
 # << Boilerplate ebuild variables >>
 : ${DESCRIPTION:="System group: ${ACCT_GROUP_NAME}"}
 : ${SLOT:=0}
-: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sh sparc x86 ~ppc-aix ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
+: ${KEYWORDS:=alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 ~riscv s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris}
 S=${WORKDIR}
 
 
 # << Phase functions >>
-EXPORT_FUNCTIONS pkg_pretend pkg_preinst
+EXPORT_FUNCTIONS pkg_pretend src_install pkg_preinst
 
 # @FUNCTION: acct-group_pkg_pretend
 # @DESCRIPTION:
@@ -114,6 +114,20 @@ acct-group_pkg_pretend() {
 			die "Group ${ACCT_GROUP_NAME} exists with wrong GID"
 		fi
 	fi
+}
+
+# @FUNCTION: acct-group_src_install
+# @DESCRIPTION:
+# Installs sysusers.d file for the group.
+acct-group_src_install() {
+	debug-print-function ${FUNCNAME} "${@}"
+
+	insinto /usr/lib/sysusers.d
+	newins - ${CATEGORY}-${ACCT_GROUP_NAME}.conf < <(
+		printf "g\t%q\t%q\n" \
+			"${ACCT_GROUP_NAME}" \
+			"${ACCT_GROUP_ID/#-*/-}"
+	)
 }
 
 # @FUNCTION: acct-group_pkg_preinst

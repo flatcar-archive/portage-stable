@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: autotools.eclass
@@ -109,10 +109,7 @@ if [[ -n ${WANT_LIBTOOL} ]] ; then
 	export WANT_LIBTOOL
 fi
 
-# Force people (nicely) to upgrade to a newer version of gettext as
-# older ones are known to be crappy.  #496454
-AUTOTOOLS_DEPEND="!<sys-devel/gettext-0.18.1.1-r3
-	${_automake_atom}
+AUTOTOOLS_DEPEND="${_automake_atom}
 	${_autoconf_atom}
 	${_libtool_atom}"
 RDEPEND=""
@@ -360,6 +357,19 @@ eautoconf() {
 		eqawarn "when it finds this file.  See https://bugs.gentoo.org/426262 for details."
 	fi
 
+	# Install config.guess and config.sub which are required by many macros
+	# in Autoconf >=2.70.
+	local gnuconfig
+	case ${EAPI:-0} in
+		0|1|2|3|4|5|6)
+			gnuconfig="${EPREFIX}/usr/share/gnuconfig"
+		;;
+		*)
+			gnuconfig="${BROOT}/usr/share/gnuconfig"
+		;;
+	esac
+	cp "${gnuconfig}"/config.{guess,sub} . || die
+
 	autotools_run_tool --at-m4flags autoconf "$@"
 }
 
@@ -515,7 +525,7 @@ autotools_run_tool() {
 	fi
 
 	if ${m4flags} ; then
-		set -- "${1}" $(autotools_m4dir_include) "${@:2}" $(autotools_m4sysdir_include)
+		set -- "${1}" $(autotools_m4dir_include) $(autotools_m4sysdir_include) "${@:2}"
 	fi
 
 	# If the caller wants to probe something, then let them do it directly.

@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2020 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 #
 # @ECLASS: mozcoreconf-v5.eclass
@@ -53,8 +53,8 @@ mozconfig_use_enable() {
 	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
-# @FUNCTION mozconfig_use_with
-# @DESCRIPTION
+# @FUNCTION: mozconfig_use_with
+# @DESCRIPTION:
 # add a line to .mozconfig based on a USE-flag
 #
 # Example:
@@ -65,8 +65,8 @@ mozconfig_use_with() {
 	mozconfig_annotate "$(use $1 && echo +$1 || echo -$1)" "${flag}"
 }
 
-# @FUNCTION mozconfig_use_extension
-# @DESCRIPTION
+# @FUNCTION: mozconfig_use_extension
+# @DESCRIPTION:
 # enable or disable an extension based on a USE-flag
 #
 # Example:
@@ -124,6 +124,7 @@ mozconfig_init() {
 	declare FF=$([[ ${PN} == firefox ]] && echo true || echo false)
 	declare SM=$([[ ${PN} == seamonkey ]] && echo true || echo false)
 	declare TB=$([[ ${PN} == thunderbird ]] && echo true || echo false)
+	declare WF=$([[ ${PN} == waterfox* ]] && echo true || echo false)
 
 	####################################
 	#
@@ -136,7 +137,7 @@ mozconfig_init() {
 		*xulrunner)
 			cp xulrunner/config/mozconfig .mozconfig \
 				|| die "cp xulrunner/config/mozconfig failed" ;;
-		*firefox)
+		*firefox|waterfox*)
 			cp browser/config/mozconfig .mozconfig \
 				|| die "cp browser/config/mozconfig failed" ;;
 		seamonkey)

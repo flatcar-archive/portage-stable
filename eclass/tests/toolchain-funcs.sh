@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 source tests-common.sh
@@ -27,7 +27,8 @@ test-tc-arch-kernel() {
 tbegin "tc-arch-kernel() (KV=2.6.30)"
 test-tc-arch-kernel 2.6.30 \
 	i{3..6}86:x86 x86_64:x86 \
-	powerpc{,64}:powerpc i{3..6}86-gentoo-freebsd:i386
+	powerpc{,64}:powerpc i{3..6}86-gentoo-freebsd:i386 \
+	or1k:openrisc or1k-linux-musl:openrisc
 tend $?
 
 #
@@ -54,21 +55,21 @@ tend ${ret}
 #
 # TEST: tc-ld-is-gold
 #
-tbegin "tc-ld-is-gold (bfd selected)"
-LD=ld.bfd tc-ld-is-gold && ret=1 || ret=0
+tbegin "tc-ld-is-gold (ld=bfd cc=bfd)"
+LD=ld.bfd LDFLAGS=-fuse-ld=bfd tc-ld-is-gold && ret=1 || ret=0
 tend ${ret}
 
-tbegin "tc-ld-is-gold (gold selected)"
+tbegin "tc-ld-is-gold (ld=gold cc=default)"
 LD=ld.gold tc-ld-is-gold
 ret=$?
 tend ${ret}
 
-tbegin "tc-ld-is-gold (bfd selected via flags)"
+tbegin "tc-ld-is-gold (ld=gold cc=bfd)"
 LD=ld.gold LDFLAGS=-fuse-ld=bfd tc-ld-is-gold
 ret=$?
 tend ${ret}
 
-tbegin "tc-ld-is-gold (gold selected via flags)"
+tbegin "tc-ld-is-gold (ld=bfd cc=gold)"
 LD=ld.bfd LDFLAGS=-fuse-ld=gold tc-ld-is-gold
 ret=$?
 tend ${ret}
@@ -78,14 +79,14 @@ tend ${ret}
 #
 tbegin "tc-ld-disable-gold (bfd selected)"
 (
-export LD=ld.bfd LDFLAGS=
+export LD=ld.bfd LDFLAGS=-fuse-ld=bfd
 ewarn() { :; }
 tc-ld-disable-gold
-[[ ${LD} == "ld.bfd" && -z ${LDFLAGS} ]]
+[[ ${LD} == "ld.bfd" && ${LDFLAGS} == "-fuse-ld=bfd" ]]
 )
 tend $?
 
-tbegin "tc-ld-disable-gold (gold selected)"
+tbegin "tc-ld-disable-gold (ld=gold)"
 (
 export LD=ld.gold LDFLAGS=
 ewarn() { :; }
@@ -94,7 +95,7 @@ tc-ld-disable-gold
 )
 tend $?
 
-tbegin "tc-ld-disable-gold (gold selected via flags)"
+tbegin "tc-ld-disable-gold (cc=gold)"
 (
 export LD= LDFLAGS="-fuse-ld=gold"
 ewarn() { :; }
@@ -171,5 +172,29 @@ if type -P pathcc &>/dev/null; then
 	)
 	tend $?
 fi
+
+for compiler in gcc clang not-really-a-compiler; do
+	if type -P ${compiler} &>/dev/null; then
+		tbegin "tc-cpp-is-true ($compiler, defined)"
+		(
+			export CC=${compiler}
+			tc-cpp-is-true "defined(SOME_DEFINED_SYMBOL)" -DSOME_DEFINED_SYMBOL
+		)
+		tend $?
+		tbegin "tc-cpp-is-true ($compiler, not defined)"
+		(
+			export CC=${compiler}
+			! tc-cpp-is-true "defined(SOME_UNDEFINED_SYMBOL)"
+		)
+		tend $?
+
+		tbegin "tc-cpp-is-true ($compiler, defined on -ggdb3)"
+		(
+			export CC=${compiler}
+			tc-cpp-is-true "defined(SOME_DEFINED_SYMBOL)" -DSOME_DEFINED_SYMBOL -ggdb3
+		)
+		tend $?
+	fi
+done
 
 texit
