@@ -38,7 +38,8 @@ do_python() {
 }
 
 pkg_setup() {
-	addpredict /run/user/$(id -u)/gnupg
+	#addpredict /run/user/$(id -u)/gnupg
+	SKIP_TESTS=1
 
 	local MAX_WORKDIR=66
 	if [[ "${#WORKDIR}" -gt "${MAX_WORKDIR}" ]]; then
