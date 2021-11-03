@@ -276,6 +276,8 @@ for atom in portage.settings.packages:
 [[ -z ${myTEXINFO}    ]] && myTEXINFO="sys-apps/texinfo"
 [[ -z ${myZLIB}       ]] && myZLIB="zlib"
 [[ -z ${myNCURSES}    ]] && myNCURSES="ncurses"
+# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
+[[ -z ${myCURL}       ]] && myCURL="net-misc/curl"
 
 # Do we really want gettext/nls?
 [[ ${USE_NLS} != 1 ]] && myGETTEXT=
@@ -300,6 +302,7 @@ einfo "Using libc       : ${myLIBC}"
 einfo "Using texinfo    : ${myTEXINFO}"
 einfo "Using zlib       : ${myZLIB}"
 einfo "Using ncurses    : ${myNCURSES}"
+einfo "Using curl       : ${myCURL}"
 echo -------------------------------------------------------------------------------
 show_status 1 Configuring environment
 echo -------------------------------------------------------------------------------
@@ -327,6 +330,8 @@ export USE="-* bootstrap ${ALLOWED_USE} ${BOOTSTRAP_USE}"
 # We can't unmerge headers which may or may not exist yet. If your
 # trying to use nptl, it may be needed to flush out any old headers
 # before fully bootstrapping.
+#
+# Flatcar: install curl with BOOTSTRAP_USE=ssl to fetch from https URLs
 if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 	show_status 3 Emerging packages
 	if [[ ${RESUME} -eq 1 ]] ; then
@@ -335,7 +340,7 @@ if [ ${BOOTSTRAP_STAGE} -le 2 ] ; then
 	else
 		STRAP_EMERGE_OPTS="${STRAP_EMERGE_OPTS} \
 			${myOS_HEADERS} ${myTEXINFO} ${myGETTEXT} ${myBINUTILS} \
-			${myGCC} ${myLIBC} ${myBASELAYOUT} ${myZLIB}"
+			${myGCC} ${myLIBC} ${myCURL} ${myBASELAYOUT} ${myZLIB}"
 	fi
 	${V_ECHO} emerge ${STRAP_EMERGE_OPTS} || cleanup 1
 	echo -------------------------------------------------------------------------------
