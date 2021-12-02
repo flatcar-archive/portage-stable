@@ -1,0 +1,1 @@
+- selinux-unconfined [2.20210908](https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20210908)
