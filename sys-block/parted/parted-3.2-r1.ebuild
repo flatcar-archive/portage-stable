@@ -21,7 +21,6 @@ RDEPEND="
 	device-mapper? ( >=sys-fs/lvm2-2.02.45 )
 	readline? ( >=sys-libs/readline-5.2:0= >=sys-libs/ncurses-5.7-r7:0= )
 	selinux? ( sys-libs/libselinux )
-	elibc_uclibc? ( dev-libs/libiconv )
 "
 DEPEND="
 	${RDEPEND}
@@ -40,7 +39,6 @@ src_prepare() {
 }
 
 src_configure() {
-	use elibc_uclibc && append-libs -liconv
 	econf \
 		$(use_enable debug) \
 		$(use_enable device-mapper) \
