@@ -294,7 +294,7 @@ src_test() {
 # Call eselect vi update with --if-unset
 # to respect user's choice (bug #187449)
 eselect_vi_update() {
-	einfo "Calling eselect vi update..."
+	ebegin "Calling eselect vi update"
 	eselect vi update --if-unset
 	eend $?
 }
@@ -320,8 +320,10 @@ src_install() {
 
 	# Fix an issue of missing defaults.vim when USE=minimal.
 	if use minimal ; then
-		insinto ${vimfiles}
-		doins runtime/defaults.vim
+		if [[ ! -f "${vimfiles}/defaults.vim" ]]; then
+			insinto ${vimfiles}
+			doins runtime/defaults.vim
+		fi
 	fi
 
 	domenu runtime/vim.desktop
