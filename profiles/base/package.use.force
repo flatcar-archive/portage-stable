@@ -21,10 +21,6 @@ sys-devel/clang pie
 dev-java/openjdk:11 system-bootstrap
 dev-java/openjdk:17 system-bootstrap
 
-# Joonas Niilola <juippis@gentoo.org> (2022-01-08)
-# -xft broken, investigate in bug #830777
-~x11-misc/xscreensaver-6.02 xft
-
 # Michał Górny <mgorny@gentoo.org> (2021-11-04)
 # Enable all LLVM targets unconditionally.  Unfortunately, disabling
 # targets tend to break reverse dependencies (e.g. Rust) and we are yet
@@ -134,7 +130,7 @@ sys-kernel/vanilla-kernel initramfs
 # distribution and rely on external providers like libxcrypt.
 # Here we are following that path too.
 <sys-libs/glibc-2.33-r2 crypt
->=sys-libs/libxcrypt-4.4.23-r1 system compat
+sys-libs/libxcrypt system compat
 
 # Matt Turner <mattst88@gentoo.org> (2019-09-01)
 # <dev-scheme/guile-2 is package.mask'd, so force USE=guile2
