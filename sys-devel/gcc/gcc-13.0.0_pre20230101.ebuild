@@ -1,10 +1,10 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-TOOLCHAIN_PATCH_DEV="soap"
-PATCH_VER="3"
+TOOLCHAIN_PATCH_DEV="sam"
+PATCH_VER="5"
 PATCH_GCC_VER="13.1.0"
 MUSL_GCC_VER="13.1.0"
 
