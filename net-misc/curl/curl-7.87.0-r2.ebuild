@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -6,15 +6,15 @@ EAPI="8"
 inherit autotools prefix multilib-minimal verify-sig
 
 DESCRIPTION="A Client that groks URLs"
-HOMEPAGE="https://curl.haxx.se/"
-SRC_URI="https://curl.haxx.se/download/${P}.tar.xz
-	verify-sig? ( https://curl.haxx.se/download/${P}.tar.xz.asc )"
+HOMEPAGE="https://curl.se/"
+SRC_URI="https://curl.se/download/${P}.tar.xz
+	verify-sig? ( https://curl.se/download/${P}.tar.xz.asc )"
 
 LICENSE="curl"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
-IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl"
+KEYWORDS="~alpha ~amd64 arm ~arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="+adns alt-svc brotli +ftp gnutls gopher hsts +http2 idn +imap ipv6 kerberos ldap mbedtls nss +openssl +pop3 +progress-meter rtmp rustls samba +smtp ssh ssl sslv3 static-libs test telnet +tftp websockets zstd"
+IUSE+=" curl_ssl_gnutls curl_ssl_mbedtls curl_ssl_nss +curl_ssl_openssl curl_ssl_rustls"
 IUSE+=" nghttp3 quiche"
 VERIFY_SIG_OPENPGP_KEY_PATH="${BROOT}"/usr/share/openpgp-keys/danielstenberg.asc
 
@@ -26,6 +26,7 @@ REQUIRED_USE="
 			curl_ssl_mbedtls
 			curl_ssl_nss
 			curl_ssl_openssl
+			curl_ssl_rustls
 		)
 	)"
 
@@ -36,21 +37,24 @@ RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
-			net-libs/gnutls:0=[static-libs?,${MULTILIB_USEDEP}]
-			dev-libs/nettle:0=[${MULTILIB_USEDEP}]
+			net-libs/gnutls:=[static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/nettle:=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		mbedtls? (
-			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
+			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		openssl? (
-			dev-libs/openssl:0=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/openssl:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
 			dev-libs/nss-pem
 			app-misc/ca-certificates
+		)
+		rustls? (
+			net-libs/rustls-ffi:=[${MULTILIB_USEDEP}]
 		)
 	)
 	http2? ( net-libs/nghttp2:=[${MULTILIB_USEDEP}] )
@@ -59,8 +63,8 @@ RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 		net-libs/ngtcp2[ssl,${MULTILIB_USEDEP}]
 	)
 	quiche? ( >=net-libs/quiche-0.3.0[${MULTILIB_USEDEP}] )
-	idn? ( net-dns/libidn2:0=[static-libs?,${MULTILIB_USEDEP}] )
-	adns? ( net-dns/c-ares:0=[${MULTILIB_USEDEP}] )
+	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
+	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
@@ -95,8 +99,9 @@ MULTILIB_CHOST_TOOLS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-proxy-noproxy-tailmatching.patch
-	"${FILESDIR}"/${P}-proxy-noproxy-match-comma.patch
+
+	"${FILESDIR}"/${P}-gnutls-openssl-build.patch
+	"${FILESDIR}"/${P}-typecheck-deprecated.patch
 )
 
 src_prepare() {
@@ -115,11 +120,11 @@ multilib_src_configure() {
 	myconf+=( --without-ca-fallback --with-ca-bundle="${EPREFIX}"/etc/ssl/certs/ca-certificates.crt  )
 	#myconf+=( --without-default-ssl-backend )
 	if use ssl ; then
-		myconf+=( --without-gnutls --without-mbedtls --without-nss )
+		myconf+=( --without-gnutls --without-mbedtls --without-nss --without-rustls )
 
 		if use gnutls || use curl_ssl_gnutls; then
 			einfo "SSL provided by gnutls"
-			myconf+=( --with-gnutls --with-nettle )
+			myconf+=( --with-gnutls )
 		fi
 		if use mbedtls || use curl_ssl_mbedtls; then
 			einfo "SSL provided by mbedtls"
@@ -132,6 +137,10 @@ multilib_src_configure() {
 		if use openssl || use curl_ssl_openssl; then
 			einfo "SSL provided by openssl"
 			myconf+=( --with-ssl --with-ca-path="${EPREFIX}"/etc/ssl/certs )
+		fi
+		if use rustls || use curl_ssl_rustls; then
+			einfo "SSL provided by rustls"
+			myconf+=( --with-rustls )
 		fi
 
 		if use curl_ssl_gnutls; then
@@ -146,6 +155,9 @@ multilib_src_configure() {
 		elif use curl_ssl_openssl; then
 			einfo "Default SSL provided by openssl"
 			myconf+=( --with-default-ssl-backend=openssl )
+		elif use curl_ssl_rustls; then
+			einfo "Default SSL provided by rustls"
+			myconf+=( --with-default-ssl-backend=rustls )
 		else
 			eerror "We can't be here because of REQUIRED_USE."
 		fi
@@ -223,7 +235,6 @@ multilib_src_configure() {
 		$(use_with nghttp3 ngtcp2)
 		$(use_with quiche)
 		$(use_with rtmp librtmp)
-		--without-rustls
 		--without-schannel
 		--without-secure-transport
 		$(use_enable websockets)
@@ -257,7 +268,7 @@ multilib_src_configure() {
 	fi
 	if use nghttp3; then
 		libs+=( "-lnghttp3" "-lngtcp2" )
-		priv+=( "libnghttp3" "-libtcp2" )
+		priv+=( "libnghttp3" "libngtcp2" )
 	fi
 	if use ssl && use curl_ssl_openssl; then
 		libs+=( "-lssl" "-lcrypto" )
