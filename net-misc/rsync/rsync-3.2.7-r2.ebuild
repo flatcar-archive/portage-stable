@@ -1,11 +1,11 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 # Uncomment when introducing a patch which touches configure
 #RSYNC_NEEDS_AUTOCONF=1
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 inherit prefix python-single-r1 systemd
 
 DESCRIPTION="File transfer program to keep remote files into sync"
@@ -75,6 +75,10 @@ if [[ ${PV} == *9999 ]] ; then
 else
 	BDEPEND+=" verify-sig? ( sec-keys/openpgp-keys-waynedavison )"
 fi
+
+PATCHES=(
+	"${FILESDIR}"/${P}-flist-memcmp-ub.patch
+)
 
 pkg_setup() {
 	# - USE=examples needs Python itself at runtime, but nothing else
