@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PATCH_VER=5
+PATCH_VER=1
 PATCH_DEV=dilfridge
 
 inherit libtool toolchain-funcs multilib-minimal
@@ -22,7 +22,7 @@ SRC_URI="mirror://gnu/binutils/${MY_P}.tar.xz
 LICENSE="|| ( GPL-3 LGPL-3 )"
 SLOT="0/${PV%_p?}"
 IUSE="64-bit-bfd cet multitarget nls static-libs"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
 BDEPEND="nls? ( sys-devel/gettext )"
 DEPEND="sys-libs/zlib[${MULTILIB_USEDEP}]"
@@ -58,7 +58,7 @@ src_prepare() {
 	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
 	# Avoid really confusing logs from subconfigure spam, makes logs far
 	# more legible.
-	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
+	export MAKEOPTS="--output-sync=line ${MAKEOPTS}"
 
 	default
 }
@@ -105,6 +105,9 @@ multilib_src_configure() {
 		# systems with debuginfod library, bug #754753
 		--without-debuginfod
 
+		# Revisit if it's useful, we do have binutils[zstd] though
+		--without-zstd
+
 		# Allow user to opt into CET for host libraries.
 		# Ideally we would like automagic-or-disabled here.
 		# But the check does not quite work on i686: bug #760926.
@@ -143,6 +146,9 @@ multilib_src_compile() {
 
 multilib_src_install() {
 	emake V=1 DESTDIR="${D}" install
+
+	# Provided by sys-devel/gdb instead
+	rm "${ED}"/usr/share/info/sframe-spec.info || die
 
 	# Provide libiberty.h directly.
 	dosym libiberty/libiberty.h /usr/include/libiberty.h
