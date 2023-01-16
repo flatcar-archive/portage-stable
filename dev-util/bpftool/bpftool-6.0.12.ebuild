@@ -1,9 +1,9 @@
-# Copyright 2021-2022 Gentoo Authors
+# Copyright 2021-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..10} )
 inherit estack linux-info optfeature python-any-r1 toolchain-funcs
 
 MY_PV="${PV/_/-}"
@@ -20,14 +20,12 @@ SRC_URI="https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_PATCH}"
 LINUX_SOURCES="linux-${LINUX_VER}.tar.xz"
 SRC_URI+=" https://www.kernel.org/pub/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
-SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/dev-util/perf/perf-5.19-binutils-2.39-patches.tar.xz"
-
 S_K="${WORKDIR}/linux-${LINUX_VER}"
 S="${S_K}/tools/bpf/bpftool"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~riscv ~x86"
+KEYWORDS="~amd64 ~riscv ~x86"
 IUSE="caps"
 
 RDEPEND="
@@ -43,6 +41,7 @@ DEPEND="
 BDEPEND="
 	${LINUX_PATCH+dev-util/patchutils}
 	${PYTHON_DEPS}
+	app-arch/tar
 	dev-python/docutils
 "
 
@@ -56,10 +55,9 @@ src_unpack() {
 		tools/{arch,build,include,lib,perf,scripts} {scripts,include,lib} "arch/*/lib"
 	)
 
-	# We expect the tar implementation to support the -j option (both
-	# GNU tar and libarchive's tar support that).
+	# We expect the tar implementation to support the -j and --wildcards option
 	echo ">>> Unpacking ${LINUX_SOURCES} (${paths[*]}) to ${PWD}"
-	tar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
+	gtar --wildcards -xpf "${DISTDIR}"/${LINUX_SOURCES} \
 		"${paths[@]/#/linux-${LINUX_VER}/}" || die
 
 	if [[ -n ${LINUX_PATCH} ]] ; then
@@ -89,9 +87,8 @@ src_prepare() {
 	fi
 
 	pushd "${S_K}" >/dev/null || die
-	# Used `git format-patch 00b32625982e0c796f0abb8effcac9c05ef55bd3...600b7b26c07a070d0153daa76b3806c1e52c9e00`
-	# bug #868123
-	eapply "${WORKDIR}"/perf-5.19-binutils-2.39-patches
+	# bug #890638
+	eapply "${FILESDIR}"/5.19.12-no-stack-protector.patch
 	popd || die
 
 	# dev-python/docutils installs rst2man.py, not rst2man
