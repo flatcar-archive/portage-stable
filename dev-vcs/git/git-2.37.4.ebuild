@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,7 +6,7 @@ EAPI=8
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{9..10} )
 
 inherit toolchain-funcs perl-module bash-completion-r1 plocale python-single-r1 systemd
 
@@ -46,12 +46,12 @@ if [[ ${PV} != *9999 ]]; then
 			${SRC_URI_KORG}/${PN}-htmldocs-${DOC_VER}.tar.${SRC_URI_SUFFIX}
 			)"
 	[[ "${PV}" == *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~x64-cygwin ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 subversion tk +threads +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +ppcsha1 +safe-directory selinux subversion tk +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -99,6 +99,7 @@ RDEPEND="${DEPEND}
 		)
 	)
 	perforce? ( ${PYTHON_DEPS} )
+	selinux? ( sec-policy/selinux-git )
 "
 
 # This is how info docs are created with Git:
@@ -140,7 +141,7 @@ RESTRICT="!test? ( test )"
 
 PATCHES=(
 	# bug #350330 - automagic CVS when we don't want it is bad.
-	"${FILESDIR}"/git-2.33.0_rc0-optional-cvs.patch
+	"${FILESDIR}"/git-2.37.0_rc1-optional-cvs.patch
 
 	# Make submodule output quiet
 	"${FILESDIR}"/git-2.21.0-quiet-submodules-testcase.patch
@@ -172,7 +173,6 @@ exportmakeopts() {
 		$(usex perl 'INSTALLDIRS=vendor NO_PERL_CPAN_FALLBACKS=YesPlease' NO_PERL=YesPlease)
 		$(usex perforce '' NO_PYTHON=YesPlease)
 		$(usex subversion '' NO_SVN_TESTS=YesPlease)
-		$(usex threads '' NO_PTHREADS=YesPlease)
 		$(usex tk '' NO_TCLTK=YesPlease)
 	)
 
@@ -252,12 +252,19 @@ src_prepare() {
 			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
 		)
 	fi
+	if ! use safe-directory ; then
+		# This patch neuters the "safe directory" detection.
+		# bugs #838271, #838223
+		PATCHES+=(
+			"${FILESDIR}"/git-2.37.2-unsafe-directory.patch
+		)
+	fi
 
 	default
 
 	if use prefix ; then
 		# bug #757309
-		eapply "${FILESDIR}"/git-2.31.0-darwin-prefix-gettext.patch
+		eapply "${FILESDIR}"/git-2.37.2-darwin-prefix-gettext.patch
 	fi
 
 	sed -i \
@@ -491,7 +498,7 @@ src_install() {
 	fi
 
 	if ! use prefix ; then
-		newinitd "${FILESDIR}"/git-daemon-r1.initd git-daemon
+		newinitd "${FILESDIR}"/git-daemon-r2.initd git-daemon
 		newconfd "${FILESDIR}"/git-daemon.confd git-daemon
 		systemd_newunit "${FILESDIR}/git-daemon_at-r1.service" \
 			"git-daemon@.service"
