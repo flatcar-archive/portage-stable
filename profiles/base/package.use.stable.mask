@@ -1,8 +1,14 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # This file requires eapi 5 or later. New entries go on top.
 # Please use the same syntax as in package.use.mask
+
+# Arsen Arsenović <arsen@gentoo.org> (2023-01-27)
+# Pulls in large amounts of unstable dependencies, blocking
+# stabilization of other packages.
+# Bug #891965.
+sys-block/nbdkit libguestfs
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2022-12-24)
 # dev-util/hip and its rocm dependencies not stable yet
@@ -15,10 +21,6 @@ media-libs/gst-plugins-bad qsv
 # Guillermo Joandet <gjoandet@gmail.com> (2022-11-22)
 # app-text/pandoc is not stable
 net-libs/gssdp man
-
-# Michał Górny <mgorny@gentoo.org> (2022-11-06)
-# Unmask the target on python-exec while it's masked elsewhere.
-dev-lang/python-exec -python_targets_python3_11
 
 # Marek Szuba <marecki@gentoo.org> (2022-09-25)
 # This depends on app-admin/ansible-molecule, which is not stable yet.
