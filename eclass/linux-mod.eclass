@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: linux-mod.eclass
@@ -408,7 +408,7 @@ generate_modulesd() {
 
 			for((t=0; t<${module_aliases}; t++))
 			do
-				echo "alias $(eval echo \${MODULESD_${currm}_ALIASES[$t]})" \
+				echo "alias $(eval echo \${MODULESD_${currm_t}_ALIASES[$t]})" \
 					>> "${module_config}"
 			done
 			echo '' >> "${module_config}"
@@ -434,7 +434,7 @@ generate_modulesd() {
 		fi
 
 		#-----------------------------------------------------------------------
-		if [[ $(eval echo \${MODULESD_${currm}_ALIASES[0]}) == guess ]]; then
+		if [[ $(eval echo \${MODULESD_${currm_t}_ALIASES[0]}) == guess ]]; then
 			# So, let's do some guesswork, eh?
 			if [[ -n ${module_opts} ]]; then
 				echo "# For Example..." >> "${module_config}"
@@ -449,7 +449,7 @@ generate_modulesd() {
 			echo "# For Example..." >> "${module_config}"
 			echo "# --------------" >> "${module_config}"
 			for ((t=0; t<${module_examples}; t++)); do
-				echo "options $(eval echo \${MODULESD_${currm}_EXAMPLES[$t]})" \
+				echo "options $(eval echo \${MODULESD_${currm_t}_EXAMPLES[$t]})" \
 					>> "${module_config}"
 			done
 			echo '' >> "${module_config}"
@@ -458,7 +458,7 @@ generate_modulesd() {
 		#-----------------------------------------------------------------------
 		if [[ ${module_additions} -gt 0 ]]; then
 			for ((t=0; t<${module_additions}; t++)); do
-				echo "$(eval echo \${MODULESD_${currm}_ADDITIONS[$t]})" \
+				echo "$(eval echo \${MODULESD_${currm_t}_ADDITIONS[$t]})" \
 					>> "${module_config}"
 			done
 			echo '' >> "${module_config}"
@@ -624,10 +624,6 @@ linux-mod_src_compile() {
 			cd "${srcdir}" || die
 			ln -s "${S}"/Module.symvers Module.symvers # no die for bug #888679
 			einfo "Preparing ${modulename} module"
-			if [[ -n ${ECONF_PARAMS} ]]; then
-				eqawarn "This package relies on the deprecated functionality of econf being called in linux-mod_src_compile (ECONF_PARAMS), which will go away in 30 days (20230107) (https://bugs.gentoo.org/340597)"
-				econf ${ECONF_PARAMS}
-			fi
 
 			# This looks messy, but it is needed to handle multiple variables
 			# being passed in the BUILD_* stuff where the variables also have
