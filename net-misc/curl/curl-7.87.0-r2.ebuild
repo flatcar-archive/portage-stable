@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -37,16 +37,16 @@ RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 	brotli? ( app-arch/brotli:=[${MULTILIB_USEDEP}] )
 	ssl? (
 		gnutls? (
-			net-libs/gnutls:0=[static-libs?,${MULTILIB_USEDEP}]
-			dev-libs/nettle:0=[${MULTILIB_USEDEP}]
+			net-libs/gnutls:=[static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/nettle:=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		mbedtls? (
-			net-libs/mbedtls:0=[${MULTILIB_USEDEP}]
+			net-libs/mbedtls:=[${MULTILIB_USEDEP}]
 			app-misc/ca-certificates
 		)
 		openssl? (
-			dev-libs/openssl:0=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
+			dev-libs/openssl:=[sslv3(-)=,static-libs?,${MULTILIB_USEDEP}]
 		)
 		nss? (
 			dev-libs/nss:0[${MULTILIB_USEDEP}]
@@ -63,8 +63,8 @@ RDEPEND="ldap? ( net-nds/openldap:=[${MULTILIB_USEDEP}] )
 		net-libs/ngtcp2[ssl,${MULTILIB_USEDEP}]
 	)
 	quiche? ( >=net-libs/quiche-0.3.0[${MULTILIB_USEDEP}] )
-	idn? ( net-dns/libidn2:0=[static-libs?,${MULTILIB_USEDEP}] )
-	adns? ( net-dns/c-ares:0=[${MULTILIB_USEDEP}] )
+	idn? ( net-dns/libidn2:=[static-libs?,${MULTILIB_USEDEP}] )
+	adns? ( net-dns/c-ares:=[${MULTILIB_USEDEP}] )
 	kerberos? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
 	rtmp? ( media-video/rtmpdump[${MULTILIB_USEDEP}] )
 	ssh? ( net-libs/libssh2[${MULTILIB_USEDEP}] )
@@ -99,9 +99,9 @@ MULTILIB_CHOST_TOOLS=(
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.30.0-prefix.patch
 	"${FILESDIR}"/${PN}-respect-cflags-3.patch
-	"${FILESDIR}"/${P}-proxy-noproxy-tailmatching.patch
-	"${FILESDIR}"/${P}-proxy-noproxy-match-comma.patch
-	"${FILESDIR}"/${P}-noproxy-tailmatch-like-in-7.85.0-and-earlier.patch
+
+	"${FILESDIR}"/${P}-gnutls-openssl-build.patch
+	"${FILESDIR}"/${P}-typecheck-deprecated.patch
 )
 
 src_prepare() {
@@ -124,7 +124,7 @@ multilib_src_configure() {
 
 		if use gnutls || use curl_ssl_gnutls; then
 			einfo "SSL provided by gnutls"
-			myconf+=( --with-gnutls --with-nettle )
+			myconf+=( --with-gnutls )
 		fi
 		if use mbedtls || use curl_ssl_mbedtls; then
 			einfo "SSL provided by mbedtls"
@@ -268,7 +268,7 @@ multilib_src_configure() {
 	fi
 	if use nghttp3; then
 		libs+=( "-lnghttp3" "-lngtcp2" )
-		priv+=( "libnghttp3" "-libtcp2" )
+		priv+=( "libnghttp3" "libngtcp2" )
 	fi
 	if use ssl && use curl_ssl_openssl; then
 		libs+=( "-lssl" "-lcrypto" )
