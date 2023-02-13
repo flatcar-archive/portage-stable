@@ -9,6 +9,7 @@ sci-mathematics/acl2
 # Sam James <sam@gentoo.org> (2023-01-02)
 # Uses error.h, bug #888956
 =sys-libs/liburing-2.3
+=sys-libs/liburing-2.3-r1
 
 # Conrad Kostecki <conikost@gentoo.org> (2022-12-31)
 # RTLD_DEEPBIND does not exist on musl
@@ -27,15 +28,6 @@ dev-libs/intel-compute-runtime
 # These packages depend on dev-lisp/sbcl unconditionally
 app-emacs/sly
 dev-lisp/alexandria
-dev-ros/roslisp
-ros-meta/desktop
-ros-meta/desktop_full
-ros-meta/perception
-ros-meta/robot
-ros-meta/ros_core
-ros-meta/ros_base
-ros-meta/simulators
-ros-meta/viz
 x11-wm/stumpwm
 x11-wm/stumpwm-contrib
 
