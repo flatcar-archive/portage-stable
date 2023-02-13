@@ -34,6 +34,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${P}-make-4.4-test-color.patch
+	"${FILESDIR}"/${P}-diff-D-option-regression.patch
 )
 
 src_configure() {
