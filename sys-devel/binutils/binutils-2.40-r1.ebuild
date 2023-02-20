@@ -19,7 +19,7 @@ IUSE="cet doc gold gprofng multitarget +nls pgo +plugins static-libs test vanill
 # PATCH_DEV          - Use download URI https://dev.gentoo.org/~{PATCH_DEV}/distfiles/...
 #                      for the patchsets
 
-PATCH_VER=1
+PATCH_VER=2
 PATCH_DEV=dilfridge
 
 if [[ ${PV} == 9999* ]]; then
