@@ -1,5 +1,9 @@
-# Copyright 2022 Gentoo Authors
+# Copyright 2022-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Hans de Graaff <graaff@gentoo.org) (2023-02-27)
+# Depends on virtual/rust
+dev-lang/ruby jit
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-12-06)
 # dev-cpp/glog fails tests, needs checknig
@@ -141,6 +145,7 @@ app-office/libreoffice clang
 #
 # - sys-libs/libcxx: will work once https://reviews.llvm.org/D139297 lands
 # - sys-devel/lld: port is still under review
+dev-util/lldb test
 sys-devel/clang-common default-libcxx default-lld
 sys-devel/clang-runtime libcxx
 
@@ -154,11 +159,13 @@ mate-base/mate help
 # Sanitizers partially supported on this architecture.
 #
 # ASan: https://reviews.llvm.org/D129418 (LLVM 15 and above)
+# Scudo: https://reviews.llvm.org/D138350 (LLVM 16 since 20221122)
 # TSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
 # UBSan: https://reviews.llvm.org/D139292 (LLVM 16 since 20221208)
 # SafeStack: https://reviews.llvm.org/D139494 (LLVM 16 since 20221210)
+# LSan: https://reviews.llvm.org/D139686 (LLVM 16 since 20230114)
 >=sys-libs/compiler-rt-sanitizers-15 -asan
->=sys-libs/compiler-rt-sanitizers-16.0.0_pre20221210 -safestack -tsan -ubsan
+>=sys-libs/compiler-rt-sanitizers-16.0.0_rc1 -lsan -safestack -scudo -tsan -ubsan
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-07-08)
 # virtual/{jdk,jre} is not available on loong yet.
@@ -173,7 +180,6 @@ net-libs/libssh mbedtls
 
 # WANG Xuerui <xen0n@gentoo.org> (2022-04-24)
 # Unmask experimental-loong on packages; we're loong.
-dev-libs/libffi -experimental-loong
 sys-libs/glibc -experimental-loong
 sys-libs/libseccomp -experimental-loong
 
