@@ -25,7 +25,6 @@ RDEPEND="
 	>=sys-apps/portage-2.1
 	app-shells/bash
 	sys-apps/gentoo-functions
-	sys-apps/config-site
 "
 BDEPEND="app-arch/xz-utils"
 
@@ -35,7 +34,4 @@ src_install() {
 	if [[ ${PV} == "99999999" ]] ; then
 		sed -i "s:@CDEVPV@:${EGIT_VERSION}:" "${ED}"/usr/bin/crossdev || die
 	fi
-
-	dodir /usr/share/config.site.d
-	mv "${ED}"/usr/share/config.site{,.d/80crossdev.conf} || die
 }
