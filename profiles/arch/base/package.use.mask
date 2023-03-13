@@ -55,7 +55,6 @@ media-libs/libva-intel-driver hybrid
 # In the meantime, force-enable on loong only.
 # This is not inside use.mask, because crossdev toolchain packages would
 # want to have the flag enabled without hassle.
-<dev-libs/libffi-3.4.3 experimental-loong
 <sys-libs/glibc-2.36 experimental-loong
 sys-libs/libseccomp experimental-loong
 
@@ -411,3 +410,7 @@ media-video/mplayer cpudetection
 # Ian Whyman <thev00d00@gentoo.org> (2016-05-22)
 # Mask raspberry-pi except on arm.
 dev-libs/libcec raspberry-pi
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2023-03-09)
+# media-libs/libplacebo is not keyworded anywhere except amd64/ppc64/x86 yet
+media-video/ffmpeg libplacebo

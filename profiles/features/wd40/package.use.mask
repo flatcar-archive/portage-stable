@@ -1,5 +1,14 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Michał Górny <mgorny@gentoo.org> (2023-03-09)
+# Packages needing dev-python/selenium.
+dev-python/aiohttp-cors test
+dev-python/django test
+
+# Hans de Graaff <graaff@gentoo.org> (2023-03-04)
+# The JIT compiler in ruby requires rust
+dev-lang/ruby jit
 
 # Sam James <sam@gentoo.org> (2022-12-26)
 # Needs dev-python/mkdocs-redirects->dev-python/twine which is masked on wd40
@@ -55,7 +64,7 @@ dev-python/docker-py test
 dev-python/google-api-python-client test
 dev-python/httpx-socks test
 dev-python/hypercorn test
-dev-python/keystoneauth test
+dev-python/keystoneauth1 test
 dev-python/libtmux test
 dev-python/locket test
 dev-python/pyjwt test
