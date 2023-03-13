@@ -6,7 +6,7 @@ EAPI=8
 GENTOO_DEPEND_ON_PERL=no
 
 # bug #329479: git-remote-testgit is not multiple-version aware
-PYTHON_COMPAT=( python3_{9..10} )
+PYTHON_COMPAT=( python3_{9..11} )
 
 inherit toolchain-funcs perl-module bash-completion-r1 optfeature plocale python-single-r1 systemd
 
@@ -58,7 +58,7 @@ S="${WORKDIR}"/${MY_P}
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki mediawiki-experimental +nls +pcre perforce +perl +safe-directory selinux subversion tk +webdav xinetd cvs test"
+IUSE="+blksha1 +curl cgi doc gnome-keyring +gpg highlight +iconv mediawiki +nls +pcre perforce +perl +safe-directory selinux subversion tk +webdav xinetd cvs test"
 
 # Common to both DEPEND and RDEPEND
 DEPEND="
@@ -136,7 +136,6 @@ REQUIRED_USE="
 	cgi? ( perl )
 	cvs? ( perl )
 	mediawiki? ( perl )
-	mediawiki-experimental? ( mediawiki )
 	perforce? ( ${PYTHON_REQUIRED_USE} )
 	subversion? ( perl )
 	webdav? ( curl )
@@ -250,16 +249,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	# Add experimental patches to improve mediawiki support,
-	# see patches for origin.
-	if use mediawiki-experimental ; then
-		PATCHES+=(
-			"${FILESDIR}"/git-2.7.0-mediawiki-namespaces.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-subpages.patch
-			"${FILESDIR}"/git-2.7.0-mediawiki-500pages.patch
-		)
-	fi
-
 	if ! use safe-directory ; then
 		# This patch neuters the "safe directory" detection.
 		# bugs #838271, #838223
@@ -652,6 +641,4 @@ pkg_postinst() {
 	optfeature_header "Some scripts require additional dependencies:"
 	optfeature git-quiltimport dev-util/quilt
 	optfeature git-instaweb www-servers/lighttpd www-servers/apache www-servers/nginx
-
-	use mediawiki-experimental && ewarn "Using experimental git-mediawiki patches. The stability of cloned wiki filesystems is not guaranteed."
 }
