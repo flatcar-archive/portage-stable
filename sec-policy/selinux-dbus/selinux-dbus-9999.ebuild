@@ -4,12 +4,12 @@
 EAPI="7"
 
 IUSE=""
-MODS="sssd"
+MODS="dbus"
 
 inherit selinux-policy-2
 
-DESCRIPTION="SELinux policy for sssd"
+DESCRIPTION="SELinux policy for dbus"
 
 if [[ ${PV} != 9999* ]] ; then
-	KEYWORDS="~amd64 -arm ~arm64 ~mips ~x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~mips ~x86"
 fi
